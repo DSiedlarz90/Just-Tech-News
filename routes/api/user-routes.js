@@ -49,6 +49,26 @@ router.post('/', (req, res) =>{
         });
 });
 
+router.post('/login', (req, res) => {
+    User.findOne({
+        where: {
+            email: req.body.email
+        }
+    }).then(dbUserData => {
+        const validPassword = dbUserData.checkPassword(req.body.password);
+        if(!dbUserData) {
+            res.status(400).json({ message: 'No user with that email address!' });
+            return;
+        }
+        if(!validPassword) {
+            res.status(400).json({ message: 'Incorrect Password' });
+            return;
+        }
+        res.json({ user: dbUserData, message: 'You are now logged in!' });
+
+    });
+});
+
 //put /api/users
 router.put('/:id', (req, res) => {
     User.update(req.body,  {
